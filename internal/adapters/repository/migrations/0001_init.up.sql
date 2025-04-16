@@ -1,0 +1,8 @@
+CREATE TABLE user (
+    user_id SERIAL PRIMARY KEY,
+    user_name VARCHAR(255),
+    user_email VARCHAR(320) NOT NULL,
+    user_password VARCHAR(255),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL CURRENT_TIMESTAMP
+);

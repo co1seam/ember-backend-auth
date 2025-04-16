@@ -1,4 +1,4 @@
-package entity
+package models
 
 import "time"
 
@@ -13,4 +13,25 @@ type User struct {
 
 type SendOtpRequest struct {
 	Email string `json:"email"`
+}
+
+type SignUpRequest struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type SignInRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Cookie struct {
+	Name     string    `json:"name"`
+	Value    string    `json:"value"`
+	Path     string    `json:"path"`
+	Domain   string    `json:"domain"`
+	Expires  time.Time `json:"expires"`
+	Secure   bool      `json:"secure"`
+	HTTPOnly bool      `json:"http_only"`
 }

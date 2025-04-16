@@ -1,18 +1,28 @@
-package postgres
+package repository
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/co1seam/ember-backend-auth/internal/config"
+	_ "github.com/lib/pq"
 )
 
 type Postgres struct {
-	db     *sql.DB
-	cancel context.CancelFunc
+	DB       *sql.DB
+	migrator *Migrator
 }
 
-func Init(ctx context.Context) (*Postgres, error) {
-	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/postgres?sslmode=disable")
+func NewPostgres(ctx context.Context, cfg *config.Database) (*Postgres, error) {
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		"127.0.0.1",
+		cfg.Port,
+		cfg.User,
+		cfg.Name,
+		cfg.Pass,
+	)
+
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to postgres: %w", err)
 	}
@@ -21,12 +31,24 @@ func Init(ctx context.Context) (*Postgres, error) {
 		return nil, fmt.Errorf("error pinging postgres: %w", err)
 	}
 
-	_, cancel := context.WithCancel(ctx)
+	migrationDB, err := sql.Open("postgres", dsn)
+	if err != nil {
+		return nil, fmt.Errorf("error connecting to postgres for migrations: %w", err)
+	}
+	defer migrationDB.Close()
 
-	return &Postgres{db: db, cancel: cancel}, nil
+	migrator := NewMigrator()
+
+	if err := migrator.Up(migrationDB); err != nil {
+		return nil, fmt.Errorf("error running migrations: %w", err)
+	}
+
+	return &Postgres{
+		DB:       db,
+		migrator: migrator,
+	}, nil
 }
 
 func (pg *Postgres) Close() error {
-	pg.cancel()
-	return pg.db.Close()
+	return pg.DB.Close()
 }

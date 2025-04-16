@@ -1,0 +1,65 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    command: ["go", "run", "./cmd/ember-backend-auth/main.go"]
+    ports:
+      - "8080:8080"
+    networks:
+      - ember
+    volumes:
+      - .:/app
+      - ./tmp:/app/tmp
+    depends_on:
+      oltp:
+        condition:
+          service_healthy
+    environment:
+      APP_NAME: Auth
+      APP_PREFORK: false
+      APP_LOG_LEVEL:
+      POSTGRES_HOST: oltp
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: auth
+      POSTGRES_PASS: auth
+      POSTGRES_NAME: auth
+      SMTP_HOST: smtp
+      SMTP_PORT: 1025
+  oltp:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+      POSTGRES_DB: auth
+    ports:
+      - "5432:5432"
+    networks:
+      - ember
+    volumes:
+      - pg-data:/var/lib/postgresql/data:rw
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ember}" ]
+      interval: 1s
+      retries: 3
+      timeout: 5s
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+  smtp:
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      ember:
+
+volumes:
+  pg-data:
+
+networks:
+  ember:
+    driver: bridge

@@ -1,4 +1,4 @@
-FROM golang:1.24.1-alpine AS base
+FROM golang:1.24.1-bookworm AS base
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -14,7 +14,7 @@ COPY internal/adapters/repository/migrations .
 
 FROM base AS development
 
-RUN apk add --no-cache git bash curl
+RUN apt-get --no-cache git bash curl
 
 FROM development AS debug
 

@@ -27,8 +27,8 @@ func (h *Handler) Router(instance *fiber.App) *fiber.App {
 			signUp := auth.Group("/sign-up")
 			{
 				signUp.Post("/send-otp", h.sendOtp)
-				signUp.Post("/verify", h.signUp)
-
+				signUp.Post("/verify-otp", h.verifyOtp)
+				signUp.Post("/", h.signUp)
 			}
 			auth.Post("/sign-in", h.signIn)
 			auth.Post("/sign-out", h.signOut)

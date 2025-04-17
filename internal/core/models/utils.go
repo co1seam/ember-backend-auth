@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/co1seam/ember-backend-auth/internal/config"
+	"github.com/co1seam/ember-backend-auth/config"
 	"github.com/co1seam/ember-backend-auth/pkg/logger"
 )
 

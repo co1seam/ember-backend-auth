@@ -1,9 +1,11 @@
-package cache
+package repository
 
-import "github.com/redis/go-redis"
+import (
+	"github.com/go-redis/redis/v8"
+)
 
 type Redis struct {
-	redis *redis.Client
+	Redis *redis.Client
 }
 
 func NewRedis(host, port string) *Redis {
@@ -12,5 +14,5 @@ func NewRedis(host, port string) *Redis {
 		Password: "",
 		DB:       0,
 	})
-	return &Redis{redis: client}
+	return &Redis{Redis: client}
 }

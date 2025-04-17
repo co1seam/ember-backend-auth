@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/co1seam/ember-backend-auth/config"
 	"github.com/co1seam/ember-backend-auth/internal/adapters/http"
 	"github.com/co1seam/ember-backend-auth/internal/adapters/repository"
-	"github.com/co1seam/ember-backend-auth/internal/config"
 	"github.com/co1seam/ember-backend-auth/internal/core/models"
 	"github.com/co1seam/ember-backend-auth/internal/core/services"
 	"github.com/co1seam/ember-backend-auth/pkg/logger"
@@ -43,12 +43,14 @@ func main() {
 		}
 	}
 
+	cache := repository.NewRedis(cfg.Redis.Host, cfg.Redis.Port)
+
 	opts := &models.Options{
 		Logger: log,
 		Config: cfg,
 	}
 
-	repos := repository.NewRepository(db.DB, opts)
+	repos := repository.NewRepository(db.DB, cache, opts)
 	service := services.NewService(repos, opts)
 	handler := http.NewHandler(service, opts)
 

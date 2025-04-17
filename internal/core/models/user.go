@@ -15,6 +15,10 @@ type SendOtpRequest struct {
 	Email string `json:"email"`
 }
 
+type VerifyOtpRequest struct {
+	OTP string `json:"otp"`
+}
+
 type SignUpRequest struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`

@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/co1seam/ember-backend-auth/internal/config"
+	"github.com/co1seam/ember-backend-auth/config"
 	_ "github.com/lib/pq"
 )
 
@@ -15,7 +15,7 @@ type Postgres struct {
 
 func NewPostgres(ctx context.Context, cfg *config.Database) (*Postgres, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
-		"127.0.0.1",
+		cfg.Host,
 		cfg.Port,
 		cfg.User,
 		cfg.Name,

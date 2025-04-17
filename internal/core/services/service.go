@@ -12,6 +12,6 @@ type Service struct {
 
 func NewService(repos *repository.Repository, opts *models.Options) *Service {
 	return &Service{
-		Authorization: NewAuthorization(repos.Authorization, opts),
+		Authorization: NewAuthorization(repos.Authorization, repos.Cache, opts),
 	}
 }

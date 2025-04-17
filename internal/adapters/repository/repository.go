@@ -8,12 +8,12 @@ import (
 
 type Repository struct {
 	Authorization ports.IAuthRepo
-	opts          *models.Options
+	Cache         *Redis
 }
 
-func NewRepository(db *sql.DB, opts *models.Options) *Repository {
+func NewRepository(db *sql.DB, cache *Redis, opts *models.Options) *Repository {
 	return &Repository{
 		Authorization: NewAuthorization(db, opts),
-		opts:          opts,
+		Cache:         cache,
 	}
 }

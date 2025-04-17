@@ -15,17 +15,24 @@ services:
       oltp:
         condition:
           service_healthy
+
     environment:
       APP_NAME: Auth
       APP_PREFORK: false
       APP_LOG_LEVEL:
+
       POSTGRES_HOST: oltp
       POSTGRES_PORT: 5432
       POSTGRES_USER: auth
       POSTGRES_PASS: auth
       POSTGRES_NAME: auth
+
+      REDIS_HOST: cache
+      REDIS_PORT: 6379
+
       SMTP_HOST: smtp
       SMTP_PORT: 1025
+      SMTP_FROM: noreply@ember.com
   oltp:
     image: postgres:16
     restart: unless-stopped
@@ -49,17 +56,26 @@ services:
         max-size: "10m"
         max-file: "3"
   smtp:
-    image: mailhog/mailhog
+    image: mailhog/mailhog:latest
     restart: unless-stopped
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - 1025:1025
+      - 8025:8025
     networks:
-      ember:
-
+      - ember
+  cache:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ember
 volumes:
   pg-data:
+  redis-data:
 
 networks:
   ember:
+    name: ember
     driver: bridge

@@ -25,11 +25,15 @@ type Token struct {
 	AccessTokenTTL  string `mapstructure:"TOKEN_ACCESS_TTL"`
 }
 
-type Redis struct{}
+type Redis struct {
+	Host string `mapstructure:"REDIS_HOST"`
+	Port string `mapstructure:"REDIS_PORT"`
+}
 
 type Config struct {
 	App      App      `mapstructure:",squash"`
 	Database Database `mapstructure:",squash"`
 	SMTP     SMTP     `mapstructure:",squash"`
 	Token    Token    `mapstructure:",squash"`
+	Redis    Redis    `mapstructure:",squash"`
 }

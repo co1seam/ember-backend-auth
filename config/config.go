@@ -16,6 +16,7 @@ type Database struct {
 type SMTP struct {
 	Host string `mapstructure:"SMTP_HOST"`
 	Port string `mapstructure:"SMTP_PORT"`
+	From string `mapstructure:"SMTP_FROM"`
 }
 
 type Token struct {

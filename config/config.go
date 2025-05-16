@@ -1,8 +1,8 @@
 package config
 
 type App struct {
-	Name    string `mapstructure:"APP_NAME"`
-	Prefork bool   `mapstructure:"APP_PREFORK"`
+	Host string `mapstructure:"APP_HOST"`
+	Port string `mapstructure:"APP_PORT"`
 }
 
 type Database struct {

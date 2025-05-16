@@ -4,16 +4,14 @@ import (
 	"context"
 	"flag"
 	"github.com/co1seam/ember-backend-auth/config"
-	"github.com/co1seam/ember-backend-auth/internal/adapters/http"
 	"github.com/co1seam/ember-backend-auth/internal/adapters/repository"
+	"github.com/co1seam/ember-backend-auth/internal/adapters/rpc"
 	"github.com/co1seam/ember-backend-auth/internal/core/models"
 	"github.com/co1seam/ember-backend-auth/internal/core/services"
 	"github.com/co1seam/ember-backend-auth/pkg/logger"
 	"log"
 	"log/slog"
 	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {
@@ -52,20 +50,11 @@ func main() {
 
 	repos := repository.NewRepository(db.DB, cache, opts)
 	service := services.NewService(repos, opts)
-	handler := http.NewHandler(service, opts)
+	handler := rpc.NewHandler(service, opts)
 
-	server := http.NewServer()
-	handler.Router(server.Server)
-	if err := server.Run("8080"); err != nil {
+	server := rpc.NewServer()
+	if err := server.Run(handler); err != nil {
 		return
-	}
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
-	<-quit
-
-	if err := server.Shutdown(); err != nil {
-		log.Error("error: ", err)
 	}
 
 	if err := db.DB.Close(); err != nil {

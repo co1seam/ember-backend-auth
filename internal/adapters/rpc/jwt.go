@@ -1,12 +1,13 @@
-package http
+package rpc
 
 import (
 	"fmt"
+	"github.com/co1seam/ember-backend-auth/config"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
-func (h *Handler) createJWT(ttl time.Duration, extraClaims jwt.MapClaims) (string, error) {
+func createJWT(ttl time.Duration, cfg *config.Token, extraClaims jwt.MapClaims) (string, error) {
 	now := time.Now()
 	baseClaims := jwt.MapClaims{
 		"iat": jwt.NewNumericDate(now),
@@ -22,7 +23,7 @@ func (h *Handler) createJWT(ttl time.Duration, extraClaims jwt.MapClaims) (strin
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, baseClaims)
-	jwtToken, err := token.SignedString([]byte(h.opts.Config.Token.Secret))
+	jwtToken, err := token.SignedString([]byte(cfg.Secret))
 	if err != nil {
 		return "", fmt.Errorf("failed to sign JWT token: %v", err)
 	}

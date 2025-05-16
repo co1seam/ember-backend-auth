@@ -12,7 +12,6 @@ import (
 
 func New(path *string) (*Config, error) {
 	if path != nil {
-		log.Printf("Attempting to load .env file from: %s", path)
 		err := godotenv.Load(*path)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -20,8 +19,6 @@ func New(path *string) (*Config, error) {
 			} else {
 				return nil, fmt.Errorf("error loading .env file: %v", err)
 			}
-		} else {
-			log.Println("Successfully loaded .env file")
 		}
 	}
 
@@ -34,7 +31,6 @@ func New(path *string) (*Config, error) {
 		key := pair[0]
 		value := pair[1]
 		envVars[key] = value
-		log.Printf("Loaded env var: %s = %s", key, value)
 	}
 
 	var cfg Config
@@ -70,9 +66,6 @@ func New(path *string) (*Config, error) {
 	if err := decoder.Decode(envVars); err != nil {
 		return nil, fmt.Errorf("decoding failed: %v", err)
 	}
-
-	log.Println("Configuration loaded successfully:")
-	log.Printf("%+v\n", cfg)
 
 	return &cfg, nil
 }

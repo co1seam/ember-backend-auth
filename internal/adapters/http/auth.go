@@ -82,36 +82,3 @@ func (h *Handler) signOut(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{})
 }
-
-func (h *Handler) createTokens(ctx *fiber.Ctx, userID int) error {
-	refreshCookie, err := h.createJWT(time.Hour*72, jwt.MapClaims{
-		"sub":  fmt.Sprint(userID),
-		"type": "refresh",
-		"aud":  "admin",
-	})
-	if err != nil {
-		return err
-	}
-
-	accessToken, err := h.createJWT(time.Minute*15, jwt.MapClaims{
-		"sub":  fmt.Sprint(userID),
-		"type": "access",
-		"aud":  "admin",
-	})
-
-	ctx.Cookie(&fiber.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshCookie,
-		Expires:  time.Now().Add(72 * time.Hour),
-		HTTPOnly: true,
-	})
-
-	ctx.Cookie(&fiber.Cookie{
-		Name:     "access_token",
-		Value:    accessToken,
-		Expires:  time.Now().Add(15 * time.Minute),
-		HTTPOnly: true,
-	})
-
-	return nil
-}

@@ -11,6 +11,7 @@ type Handler struct {
 	opts    *models.Options
 }
 
+// Deprecated
 func NewHandler(service *services.Service, opts *models.Options) *Handler {
 	return &Handler{
 		service: service,
@@ -18,6 +19,7 @@ func NewHandler(service *services.Service, opts *models.Options) *Handler {
 	}
 }
 
+// Deprecated
 func (h *Handler) Router(instance *fiber.App) *fiber.App {
 	api := instance.Group("/api")
 	v1 := api.Group("/v1")

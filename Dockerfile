@@ -14,7 +14,7 @@ COPY internal/adapters/repository/migrations .
 
 FROM base AS development
 
-RUN apt-get --no-cache git bash curl
+RUN apt-get install git bash curl
 
 FROM development AS debug
 
@@ -33,6 +33,6 @@ RUN adduser -D -u 1001 appuser && \
 
 USER appuser
 
-EXPOSE 8080
+EXPOSE 50051
 
 CMD ["/app/main"]

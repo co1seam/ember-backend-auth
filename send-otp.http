@@ -1,0 +1,35 @@
+### GET request to example server
+GRPC grpc://localhost:50051/auth.Auth/SendOTP
+
+{
+  "email": "test@test.com"
+}
+
+###
+GRPC grpc://localhost:50051/auth.Auth/VerifyOTP
+
+{
+  "otp": "128522"
+}
+
+###
+
+GRPC grpc://localhost:50051/auth.Auth/SignUp
+
+{
+  "username": "Kostya Struev",
+  "email": "guystruev@gmail.com",
+  "password": "woodguy2000"
+}
+
+###
+
+GRPC grpc://localhost:50051/auth.Auth/SignIn
+
+{
+  "email": "peperonya@lyubimonya.com",
+  "password": "pepechka"
+}
+
+###
+GRPC grpc://localhost:50051/grpc.reflection.v1.ServerReflection/ServerReflectionInfo

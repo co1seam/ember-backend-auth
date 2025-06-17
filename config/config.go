@@ -1,8 +1,9 @@
 package config
 
 type App struct {
-	Host string `mapstructure:"APP_HOST"`
-	Port string `mapstructure:"APP_PORT"`
+	Host     string `mapstructure:"APP_HOST"`
+	Port     string `mapstructure:"APP_PORT"`
+	LogLevel string `mapstructure:"APP_LOG_LEVEL"`
 }
 
 type Database struct {

@@ -12,28 +12,28 @@ services:
       - .:/app
       - ./tmp:/app/tmp
     depends_on:
-      oltp:
+      postgres-auth:
         condition:
           service_healthy
 
     environment:
       APP_HOST: auth
       APP_PORT: 50051
-      APP_LOG_LEVEL:
+      APP_LOG_LEVEL: debug
 
-      POSTGRES_HOST: oltp
+      POSTGRES_HOST: postgres-auth
       POSTGRES_PORT: 5432
       POSTGRES_USER: auth
       POSTGRES_PASS: auth
       POSTGRES_NAME: auth
 
-      REDIS_HOST: cache
+      REDIS_HOST: redis-auth
       REDIS_PORT: 6379
 
-      SMTP_HOST: smtp
+      SMTP_HOST: mailhog-auth
       SMTP_PORT: 1025
       SMTP_FROM: noreply@ember.com
-  oltp:
+  postgres-auth:
     image: postgres:16
     restart: unless-stopped
     environment:
@@ -47,7 +47,7 @@ services:
     volumes:
       - pg-data:/var/lib/postgresql/data:rw
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ember}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-auth}" ]
       interval: 1s
       retries: 3
       timeout: 5s
@@ -55,7 +55,7 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-  smtp:
+  mailhog-auth:
     image: mailhog/mailhog:latest
     restart: unless-stopped
     ports:
@@ -63,7 +63,7 @@ services:
       - 8025:8025
     networks:
       - ember
-  cache:
+  redis-auth:
     image: redis:latest
     ports:
       - "6379:6379"

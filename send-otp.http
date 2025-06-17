@@ -9,7 +9,7 @@ GRPC grpc://localhost:50051/auth.Auth/SendOTP
 GRPC grpc://localhost:50051/auth.Auth/VerifyOTP
 
 {
-  "otp": "128522"
+  "otp": "982593"
 }
 
 ###

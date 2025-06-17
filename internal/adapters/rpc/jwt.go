@@ -29,3 +29,25 @@ func createJWT(ttl time.Duration, cfg *config.Token, extraClaims jwt.MapClaims) 
 	}
 	return jwtToken, nil
 }
+
+func verifyJWT(tokenString string, cfg *config.Token) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(cfg.Secret), nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing token: %v", err)
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		exp, err := claims.GetExpirationTime()
+		if err != nil || exp == nil || exp.Before(time.Now()) {
+			return nil, fmt.Errorf("token expired")
+		}
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("invalid token")
+}

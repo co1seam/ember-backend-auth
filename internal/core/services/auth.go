@@ -100,7 +100,6 @@ func (a *Authorization) generateOTP(length int) (string, error) {
 	otp := make([]byte, length)
 
 	for i := range otp {
-		// Генерируем криптобезопасное случайное число
 		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(digits))))
 		if err != nil {
 			return "", fmt.Errorf("OTP generate error: %v", err)

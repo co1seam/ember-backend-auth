@@ -10,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"strconv"
 	"time"
 )
 
@@ -33,7 +34,7 @@ func (a *Authorization) SendOTP(ctx context.Context, req *authv1.SendOTPRequest)
 
 	err := a.service.SendOTP(ctx, otp.Email)
 	if err != nil {
-		return &authv1.SendOTPResponse{Success: false}, status.Error(codes.Internal, err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &authv1.SendOTPResponse{Success: true}, nil
@@ -41,12 +42,15 @@ func (a *Authorization) SendOTP(ctx context.Context, req *authv1.SendOTPRequest)
 
 func (a *Authorization) VerifyOTP(ctx context.Context, req *authv1.VerifyOTPRequest) (*authv1.VerifyOTPResponse, error) {
 	user := models.VerifyOtpRequest{
-		OTP: req.GetOtp(),
+		OTP: req.Otp,
 	}
+
+	fmt.Println(req.Otp)
+	fmt.Println(user.OTP)
 
 	email, err := a.service.VerifyOTP(ctx, user.OTP)
 	if err != nil {
-		return &authv1.VerifyOTPResponse{Email: ""}, nil
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &authv1.VerifyOTPResponse{Email: email}, nil
@@ -69,7 +73,7 @@ func (a *Authorization) SignUp(ctx context.Context, req *authv1.SignUpRequest) (
 		return &authv1.SignUpResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	return &authv1.SignUpResponse{AccessToken: tokens[0], RefreshToken: tokens[1]}, nil
+	return &authv1.SignUpResponse{AccessToken: tokens[1], RefreshToken: tokens[0]}, nil
 }
 
 func (a *Authorization) SignIn(ctx context.Context, req *authv1.SignInRequest) (*authv1.SignInResponse, error) {
@@ -87,15 +91,55 @@ func (a *Authorization) SignIn(ctx context.Context, req *authv1.SignInRequest) (
 		return &authv1.SignInResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	return &authv1.SignInResponse{AccessToken: tokens[0], RefreshToken: tokens[1]}, nil
-}
-
-func (a *Authorization) SignOut(ctx context.Context, req *authv1.SignOutRequest) (*authv1.SignOutResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
+	return &authv1.SignInResponse{AccessToken: tokens[1], RefreshToken: tokens[0]}, nil
 }
 
 func (a *Authorization) RefreshToken(ctx context.Context, req *authv1.RefreshTokenRequest) (*authv1.RefreshTokenResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
+	claims, err := verifyJWT(req.RefreshToken, &a.opts.Config.Token)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	tokenType, ok := claims["type"].(string)
+	if !ok || tokenType != "refresh" {
+		return nil, status.Error(codes.Internal, "invalid refresh token")
+	}
+
+	sub, ok := claims["sub"].(string)
+	if !ok {
+		return nil, status.Error(codes.Internal, "invalid subject")
+	}
+
+	userID, err := strconv.Atoi(sub)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	tokens, err := createTokens(userID, &a.opts.Config.Token)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &authv1.RefreshTokenResponse{AccessToken: tokens[1], RefreshToken: tokens[0]}, nil
+}
+
+func (a *Authorization) ValidateToken(_ context.Context, req *authv1.ValidateTokenRequest) (*authv1.ValidateTokenResponse, error) {
+	claims, err := verifyJWT(req.AccessToken, &a.opts.Config.Token)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	tokenType, ok := claims["type"].(string)
+	if !ok || tokenType != "access" {
+		return nil, status.Error(codes.Internal, "invalid token")
+	}
+
+	sub, ok := claims["sub"].(string)
+	if !ok {
+		return nil, status.Error(codes.Internal, "invalid subject")
+	}
+
+	return &authv1.ValidateTokenResponse{Subject: sub}, nil
 }
 
 func createTokens(userID int, cfg *config.Token) ([]string, error) {
